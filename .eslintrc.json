@@ -1,0 +1,3 @@
+{
+  "extends": ["@kryha/eslint-config-react"]
+}

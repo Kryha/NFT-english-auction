@@ -1,0 +1,23 @@
+body,
+html {
+  font-family: "Raleway", sans-serif;
+  overscroll-behavior: none;
+  color: #404258;
+}
+
+/* Gotta target this few in particular, thanks css*/
+input,
+button,
+textarea,
+select {
+  font-family: "Barlow", sans-serif;
+}
+
+.App {
+  width: 100vw;
+  height: 100vh;
+}
+
+* {
+  margin: 0;
+}
