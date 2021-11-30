@@ -1,10 +1,31 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 import * as text from "../assets";
 
-// Pass a date string to this function
-export const Countdown = (expiresAt: string): string => {
+export const useCountdown = (deadline: number): string => {
   const [time, setTime] = useState<string>("");
   const [isTimeRemaining, setIsTimeRemaining] = useState<boolean>(true);
+
+  const day = 1000 * 60 * 60 * 24;
+  const minute = 1000 * 60 * 60;
+  const second = 1000 * 60;
+
+  const countdownTimer = useCallback(() => {
+    const now = Date.now();
+
+    const timeLeft = deadline - now;
+    if (timeLeft <= 0) {
+      setTime(text.timeIsUp);
+      setIsTimeRemaining(false);
+    } else {
+      const days = Math.floor(timeLeft / day);
+      const hours = Math.floor((timeLeft % day) / minute);
+      const minutes = Math.floor((timeLeft % minute) / second);
+      const seconds = Math.floor((timeLeft % second) / 1000);
+
+      setTime(text.timeRemaining(days, hours, minutes, seconds));
+    }
+  }, [day, deadline, minute, second]);
 
   useEffect(() => {
     countdownTimer();
@@ -15,24 +36,7 @@ export const Countdown = (expiresAt: string): string => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [countdownTimer, isTimeRemaining]);
 
-  const countdownTimer = () => {
-    const countDownDate = Date.parse(expiresAt);
-    const now = Date.now();
-
-    const timeLeft = countDownDate - now;
-    if (timeLeft <= 0) {
-      setTime(text.timeIsUp);
-      setIsTimeRemaining(false);
-    } else {
-      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-      setTime(text.timeRemaining(days, hours, minutes, seconds));
-    }
-  };
   return time;
 };

@@ -46,14 +46,16 @@ dfx identity use admin
 
 ## Running the project locally
 
+### Starting and stopping the server
+
 Before deploying the canisters locally, you have to start the dfx server:
 
 ```bash
 # Starts the local replica, running in the background
-dfx start --background
+dfx start
 
 # Sometimes you may also want to clean things up if stuff is not working properly
-dfx start --background --clean
+dfx start --clean
 ```
 
 After you are done, you can stop the server with:
@@ -61,26 +63,45 @@ After you are done, you can stop the server with:
 dfx stop
 ```
 
-There is a single command that creates all the canisters, builds and deploys the code:
+### Running internet identity canister locally
+
+In order to be able to authenticate with your local deployment, you have to run internet-identity canister locally, on the same running server as Veiling.
+
+The steps to run it properly are as follow:
+
+1. Make sure you started the server from the Veiling root directory.
+2. Make sure you have properly installed [Rust](https://www.rust-lang.org/) on your computer.
+3. Clone or download the [internet-identity](npm) repo in a directory external to this project.
+4. `cd` inside the internet-identity directory and run:
 
 ```bash
-dfx deploy --no-wallet
+npm install
 ```
 
-After deploying you should call:
+5. After run:
 
 ```bash
-dfx canister call nft init
+npm ci
 ```
 
-If you want to create the canisters or build without deploying you can use the following commands:
+6. Build and deploy everything with the following command (the first build may take a while):
 
 ```bash
-# creates all the canisters defined in dfx.json
-dfx canister create --all
+II_ENV=development dfx deploy --no-wallet --argument '(null)'
+```
 
-# builds the code for the canisters you created, without deploying
-dfx build
+### Deploying the application
+
+In the [nft-english-auction] directory, there is a single command that creates all the canisters, builds and deploys the code:
+
+```bash
+make deploy
+```
+
+If you want to redeploy after doing some changes to a particular canister you can just run:
+
+```bash
+make <canister_name>
 ```
 
 Once the job completes, your application will be available at `http://localhost:8000?canisterId={asset_canister_id}`.

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Label, FlexBoxContainer } from "../";
+import { Label, FlexBoxContainer } from "../atoms";
 import { color, margins } from "../../design-system";
 
 interface LabeledDataProps {
@@ -27,5 +27,4 @@ export const Container = styled(FlexBoxContainer)<LabeledDataProps>`
 
 export const DataLabel = styled(Label)`
   margin-bottom: ${margins.nano};
-  text-transform: uppercase;
 `;

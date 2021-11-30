@@ -3,17 +3,20 @@ import Debug "mo:base/debug";
 import Error "mo:base/Error";
 import Nat "mo:base/Nat";
 import Array "mo:base/Array";
-import NFT "../nft/main";
 
-shared({caller = owner}) actor class Tests() {
-  func initNFT() : async NFT.NFTHandler {
+import nft "canister:nft";
+
+// TODO: find a way to use nft actor without influencing the deployed nft canister, since we are not using a class for nft anymore
+actor Tests {
+  func initNFT(auctionPrincipal: Principal) : async () {
     Debug.print("Initializing NFT handler");
-    let nft = await NFT.NFTHandler();
-    ignore await nft.init();
-    nft;
+    switch (await nft.init(auctionPrincipal)) {
+      case (#err(_)) throw Error.reject("Handler initialization");
+      case (ok) {};
+    };
   };
 
-  func testMint(nft : NFT.NFTHandler, creator: Principal) : async () {
+  func testMint(creator: Principal) : async () {
     Debug.print("TESTING: token mint");
     let mockData = Blob.fromArray([0, 0]);
     switch (await nft.mint({ payload = mockData; contentType = ""; isPrivate = false; owner = ?creator })) {
@@ -45,7 +48,7 @@ shared({caller = owner}) actor class Tests() {
   };
 
   // this function should be called right after testMint
-  func testTransfer(nft : NFT.NFTHandler, sender : Principal, receiver : Principal) : async () {
+  func testTransfer(sender : Principal, receiver : Principal) : async () {
     Debug.print("TESTING: token transfer");
     switch (await nft.getBalanceOf(sender)) {
       case(#err(_)) throw Error.reject("Sender balance not present before transfer");
@@ -98,10 +101,10 @@ shared({caller = owner}) actor class Tests() {
   };
 
   public shared({caller}) func run(transferTo : Principal) : async () {
-    let nft = await initNFT();
+    await initNFT(caller);
 
-    await testMint(nft, caller);
-    await testTransfer(nft, caller, transferTo);
+    await testMint(caller);
+    await testTransfer(caller, transferTo);
 
     Debug.print("Tests passed!");
   };

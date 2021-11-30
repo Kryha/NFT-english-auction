@@ -12,9 +12,12 @@ export const SidebarNavigationContainer = styled.div`
     color: ${color.lightGrey};
     text-decoration: none;
   }
+  & .navigation-zone path {
+    stroke: ${color.white};
+    fill: none;
+  }
   & .navigation-zone.active ${SidebarBox} {
     background-color: none;
-
     width: 100%;
   }
   & .navigation-zone.active {

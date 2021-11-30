@@ -68,6 +68,7 @@ module.exports = {
     rules: [
       { test: /\.(ts|tsx|jsx)$/, loader: "ts-loader" },
       { test: /\.css$/, use: ["style-loader", "css-loader"] },
+      { test: /\.svg$/, use: ["@svgr/webpack"] },
     ],
   },
   plugins: [
@@ -85,7 +86,11 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      DFINITY_PROJECT_CANISTER_ID: canisters["nft"], // TODO: change back to backend after merge
+      DFINITY_PROJECT_CANISTER_ID: canisters["backend"],
+      FRONTEND_CANISTER_ID: process.env.FRONTEND_CANISTER_ID,
+      BACKEND_CANISTER_ID: process.env.BACKEND_CANISTER_ID,
+      NFT_CANISTER_ID: process.env.NFT_CANISTER_ID,
+      FUNGIBLE_TOKEN_CANISTER_ID: process.env.FUNGIBLETOKEN_CANISTER_ID,
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],

@@ -38,11 +38,7 @@ export const ButtonBase = styled.button<ButtonProps>`
   }};
 `;
 
-interface SidebarButtonProps {
-  active?: boolean;
-}
-
-export const SidebarButton = styled(ButtonBase)<SidebarButtonProps>`
+export const SidebarButton = styled(ButtonBase)`
   background-color: linear-gradient(129.52deg, ${color.darkBlue} 0%, ${color.purple} 100%);
   font-weight: ${fontWeight.bold};
   display: grid;
@@ -52,17 +48,16 @@ export const SidebarButton = styled(ButtonBase)<SidebarButtonProps>`
   padding: 0 ${margins.small};
   color: ${color.offWhite};
   border: none;
+`;
 
-  ${({ active }): string => {
-    return active
-      ? `
-        background-color: none;
-        color: ${color.white};
+interface ContainedButtonProps {
+  backgroundColor?: string;
+  fontColor?: string;
+}
 
-        & svg {
-          fill: ${color.white};
-        }
-      `
-      : "";
-  }};
+export const ContainedButton = styled(ButtonBase)<ContainedButtonProps>`
+  background: ${(props): string => props.backgroundColor || color.white};
+  font-weight: ${fontWeight.bold};
+  color: ${(props): string => props.fontColor || color.black};
+  border: none;
 `;

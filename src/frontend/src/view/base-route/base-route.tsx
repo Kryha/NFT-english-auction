@@ -1,11 +1,8 @@
-import React from "react";
+import React, { FC } from "react";
+
 import { BaseWrapper, ContentContainer } from "./styles";
 
-interface BaseRouteProps {
-  children?: React.ReactNode;
-}
-
-export const BaseRoute = ({ children }: BaseRouteProps): React.ReactElement => {
+export const BaseRoute: FC = ({ children }) => {
   return (
     <BaseWrapper>
       <ContentContainer>{children}</ContentContainer>

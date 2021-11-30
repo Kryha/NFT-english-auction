@@ -1,5 +1,16 @@
 export const path = {
   dashboard: "/dashboard",
   myBids: "/my-bids",
-  newAuction: "/newAuction",
+  myAuctions: "/my-auctions",
+  activate: "/activate",
+  newAuction: "/new-auction",
+  reviewBidModal: "/review-bid",
+  preview: "/preview",
+  wallet: "/wallet",
+  mintNft: "/mint-nft",
+  confirmation: "/confirmation",
+  error: "/error",
+  topUp: "/topup",
+  closeAuction: "/close-auction",
+  closeAuctionConfirmation: "/close-auction-confirmation",
 };

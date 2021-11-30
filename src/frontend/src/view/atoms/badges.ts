@@ -18,4 +18,6 @@ export const Badge = styled.span<BadgeProps>`
       `
       : "";
   }};
+  max-height: ${margins.medium};
+  text-transform: capitalize;
 `;

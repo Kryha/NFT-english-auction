@@ -18,4 +18,12 @@ export const color = {
   darkBlue: "#4564DE",
   white: "#FFFFFF",
   purple: "#7c4ecb",
+  transparentDark: "#40425899",
+  sidebarColor: "linear-gradient(90deg, #4564de, #7c4ecb)",
+};
+
+export const statusColor = {
+  pending: color.yellow,
+  active: color.green,
+  closed: color.orange,
 };

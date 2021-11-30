@@ -1,8 +1,8 @@
 import React from "react";
 import { Container, DataLabel } from "./styles";
 
-export interface LabeledDataProps {
-  label?: string;
+interface LabeledDataProps {
+  label?: string | number;
   customColor?: string;
   disabled?: boolean;
 }

@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { color } from "../../design-system";
+import { color, fontSize, margins } from "../../design-system";
 import { HeaderHorizontalBorder } from "../../view";
+import { RightArrowIcon } from "../../assets/icons";
 
 export const MainWrapper = styled.div`
-  background: linear-gradient(90deg, #4564de, #7c4ecb);
+  background: ${color.sidebarColor};
   height: 100%;
   width: 100%;
   text-align: center;
@@ -26,19 +27,19 @@ export const HeaderBorder = styled(HeaderHorizontalBorder)`
 
 export const LandingSubSectionText = styled.h4`
   font-weight: 100;
-  font-size: 30px;
+  font-size: ${fontSize.large};
   line-height: 35px;
   color: ${color.white};
-  margin-top: 40px;
+  margin-top: ${margins.large};
   margin-left: auto;
   margin-right: auto;
   width: 25em;
+  text-transform: capitalize;
 `;
 
-export const RightArrowContainer = styled.span`
-  margin-top: 40px;
-  & > svg {
-    fill: ${color.white};
-    font-size: 200px;
-  }
+export const RightArrow = styled(RightArrowIcon)`
+  fill: ${color.white};
+  width: 100px;
+  height: 100px;
+  margin-top: ${margins.large};
 `;

@@ -1,8 +1,7 @@
 import React from "react";
-import { HeaderBorder, LandingPageText, LandingSubSectionText, MainWrapper, RightArrowContainer } from "./styles";
+import { HeaderBorder, LandingPageText, LandingSubSectionText, MainWrapper, RightArrow } from "./styles";
 import * as text from "../../assets/text";
 import { Link } from "react-router-dom";
-import { ArrowRightRounded } from "@material-ui/icons";
 import { path } from "../../assets/util";
 
 export const Landing = (): React.ReactElement => {
@@ -12,9 +11,7 @@ export const Landing = (): React.ReactElement => {
       <HeaderBorder />
       <LandingSubSectionText>{text.landingLabel}</LandingSubSectionText>
       <Link to={path.dashboard}>
-        <RightArrowContainer>
-          <ArrowRightRounded />
-        </RightArrowContainer>
+        <RightArrow />
       </Link>
     </MainWrapper>
   );
