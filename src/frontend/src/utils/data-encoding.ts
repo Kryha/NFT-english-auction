@@ -1,4 +1,4 @@
-import { NFTMetadataSizes, TokenObject } from "../../../types";
+import { NFTMetadataSizes, TokenObject, File } from "../../../types";
 
 export const bufferToDataURL = (buffer: ArrayBuffer): string => {
   return URL.createObjectURL(new Blob([buffer]));
@@ -36,4 +36,18 @@ export const decodeMetadata = (payload: number[]): { metadata: NFTMetadata; file
       .trimEnd(),
   };
   return { metadata, file };
+};
+
+export const decodePayload = (payload: number[], type: string): { metadata: NFTMetadata; file: File } => {
+  const { metadata, file } = decodeMetadata(payload);
+  const fileBuffer: ArrayBuffer = new Uint8Array(file).buffer;
+
+  return {
+    metadata,
+    file: {
+      data: fileBuffer,
+      type,
+      name: metadata.title,
+    },
+  };
 };

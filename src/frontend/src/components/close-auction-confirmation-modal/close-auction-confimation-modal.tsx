@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from "react";
+import React, { FC } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
@@ -12,15 +12,12 @@ export const CloseAuctionConfirmationModal: FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const closeModal = useCallback(
-    (specPath?: string) => {
-      if (!specPath) specPath = `${path.dashboard}`;
+  const closeModal = (specPath?: string) => {
+    if (!specPath) specPath = path.dashboard;
 
-      dispatch(resetCreateBid());
-      history.push(specPath);
-    },
-    [dispatch, history]
-  );
+    dispatch(resetCreateBid());
+    history.push(specPath);
+  };
 
   return (
     <ModalContainer>
@@ -30,8 +27,10 @@ export const CloseAuctionConfirmationModal: FC = () => {
             <Heading>{text.congratulations}</Heading>
             <CancelCrossIcon onClick={() => closeModal()} />
           </HeadingContainer>
+
           <HeaderHorizontalBorder />
           <ConfirmationText>{text.closeAuctionConfirmation}</ConfirmationText>
+
           <Box>
             <ButtonBase onClick={() => closeModal(path.dashboard)}>{text.viewMoreAuctions}</ButtonBase>
           </Box>

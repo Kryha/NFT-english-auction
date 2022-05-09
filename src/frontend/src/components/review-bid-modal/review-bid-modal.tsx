@@ -1,5 +1,5 @@
-import React, { FC, useCallback, useEffect } from "react";
-import { useHistory, useRouteMatch } from "react-router-dom";
+import React, { FC } from "react";
+import { Redirect, useHistory, useRouteMatch } from "react-router-dom";
 
 import * as text from "../../assets/text";
 import { path } from "../../assets/util";
@@ -29,15 +29,11 @@ export const ReviewBidModal: FC = () => {
   const { preview, formData } = useCreateBidState();
   const [createBid, loading] = useCreateBid();
 
-  const closeModal = useCallback((): void => {
+  const closeModal = (): void => {
     history.push(`${path.dashboard}/${matchParams.id}`);
-  }, [history, matchParams.id]);
+  };
 
-  useEffect(() => {
-    if (!formData.auctionName) {
-      closeModal();
-    }
-  }, [closeModal, formData]);
+  if (!formData.auctionName) return <Redirect to={`${path.dashboard}/${matchParams.id}`} />;
 
   // TODO: Change how we calculate the token value
   const tokenValue = dollarsToToken(preview.amount);

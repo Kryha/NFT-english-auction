@@ -9,7 +9,7 @@ module {
   public type UserMap = HashMap.HashMap<Principal, UserState>;
   public type AuctionId = ID;
   public type BidId = ID;
-  public type NftId = Text;
+  public type NftId = Nat;
   public type UserId = Principal;
 
   public type DB = {
@@ -98,5 +98,8 @@ module {
     #InvalidRequest;
     #InsufficientBalance;
     #InsufficientAllowance;
+    #TokenNotExist;
+    #InvalidOperator;
+    #TransferError;
   };
 };

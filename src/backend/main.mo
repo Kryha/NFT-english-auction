@@ -1,9 +1,7 @@
-import FungibleToken "canister:fungibleToken";
 import NFT "canister:nft";
+import Ledger "canister:ledger";
 
 import HashMap "mo:base/HashMap";
-import Text "mo:base/Text";
-import Float "mo:base/Float";
 import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
 import Array "mo:base/Array";
@@ -11,13 +9,16 @@ import Time "mo:base/Time";
 import Iter "mo:base/Iter";
 import List "mo:base/List";
 import Hash "mo:base/Hash";
-import Debug "mo:base/Debug";
-import Option "mo:base/Option";
 import Result "mo:base/Result";
+import Blob "mo:base/Blob";
 
+import Account "account/Account";
 import T "types";
 import Util "util";
 import DbUtil "util-db";
+import Const "const";
+
+import Nat64 "mo:base/Nat64";
 
 actor AuctionController {
   type Result<T, E> = Result.Result<T, E>;
@@ -55,13 +56,10 @@ actor AuctionController {
   // Shared
   public shared({ caller }) func newAuction(auctionData : T.NewAuctionPayload) : async Result<(), T.Error> {
     if (not Util.isAuth(caller)) return #err(#Unauthorized);
-    let nftOwner = await NFT.getOwnerOf(auctionData.nftId);
-    switch(nftOwner) {
-      case (#err(error)) return #err(#NotFound);
-      case (#ok(owner)) {
-        if (owner != caller) return #err(#NotAllowed);
-      }
-    };
+
+    let nftOwner = await NFT.ownerOf(auctionData.nftId);
+    if (nftOwner != caller) return #err(#NotAllowed);
+
     let auctionObject: T.AuctionObject = {
       id = auctionId;
       name = auctionData.name;
@@ -107,12 +105,7 @@ actor AuctionController {
       case (?{ auction; bidIds; highestBid }) {
         if (auction.owner != caller or auction.status != #pending or auction.nftId != payload.nftId) return #err(#NotAllowed);
         let isTokenMine = await NFT.isTokenMine(auction.nftId);
-        switch(isTokenMine) {
-          case (#err(error)) return #err(#NotAllowed);
-          case (#ok(mine)) {
-            if (not mine) return #err(#NotAllowed);
-          }
-        };
+        if (not isTokenMine) return #err(#NotAllowed);
         
         auctionMap.put(payload.auctionId, {
           highestBid;
@@ -136,8 +129,15 @@ actor AuctionController {
     }
   };
 
+  public func getAccountBalance(principal : Principal) : async Nat64 {
+    let account = Account.defaultAccountIdentifier(principal);
+    let presentBalance = await Ledger.account_balance({ account });
+    presentBalance.e8s;
+  };
+
   public shared({ caller }) func bid(bid : T.NewBidPayload): async Result<T.BidObject, T.Error> {
     if (not Util.isAuth(caller)) return #err(#Unauthorized);
+    let callerAccount = Account.defaultAccountIdentifier(caller);
 
     switch(auctionMap.get(bid.auctionId)) {
       case (null) return #err(#NotFound);
@@ -150,18 +150,31 @@ actor AuctionController {
         let auctionExpiration = Util.addDays(auction.auction.dateCreated, auction.auction.durationInDays);
         if (Time.now() >= auctionExpiration) return #err(#NotAllowed);
 
-        let presentBalance = await FungibleToken.balanceOf(caller);
-        let tokenAmount = Util.tokenAmountToNat(Util.dollarsToToken(bid.amount));
-        if (presentBalance < tokenAmount) return #err(#InsufficientBalance);
+        let presentBalance = await Ledger.account_balance({ account = callerAccount });
+        let tokenAmount = Util.tokenAmountToNat64(Util.dollarsToToken(bid.amount));
+
+        // TODO: consider "big" currency instead of e8s
+        if (presentBalance.e8s < tokenAmount) return #err(#InsufficientBalance);
 
         // Return tokens to previous highest bidder
         switch (DbUtil.getHighestBid(bids)) {
           case (null) {};
           case (?highestBid) {
-            let tokenAmount = Util.tokenAmountToNat(Util.dollarsToToken(highestBid.amount));
-            switch (await FungibleToken.transfer(highestBid.bidder, tokenAmount)) {
-              case (#err(error)) return #err(error);
-              case (#ok(_)) {};
+            let highestBidderAccount = Account.defaultAccountIdentifier(highestBid.bidder);
+            let tokenAmount = Util.tokenAmountToNat64(Util.dollarsToToken(highestBid.amount));
+
+            let ledgerRes = await Ledger.transfer({
+              memo = 0;
+              from_subaccount = null;
+              to = highestBidderAccount;
+              amount = { e8s = tokenAmount };
+              fee = { e8s = Const.LEDGER_FEE };
+              created_at_time = null;
+            });
+
+            switch (ledgerRes) {
+              case (#Err(error)) return #err(#TransferError);
+              case (#Ok(_)) {};
             };
           };
         };
@@ -207,7 +220,6 @@ actor AuctionController {
     };
   };
 
-  // TODO: send NFT to auction winner
   public shared({ caller }) func closeAuction(auctionId : T.AuctionId) : async Result<(), T.Error> {
     if (not Util.isAuth(caller)) return #err(#Unauthorized);
 
@@ -243,15 +255,25 @@ actor AuctionController {
           };
           case (?highestBid) {
             if (Time.now() < auctionExpiration and highestBid.amount < auction.buyNowPrice) return #err(#NotAllowed);
-            let tokenAmount = Util.tokenAmountToNat(Util.dollarsToToken(highestBid.amount));
+            let tokenAmount = Util.tokenAmountToNat64(Util.dollarsToToken(highestBid.amount));
+
             switch(await NFT.transfer(highestBid.bidder, auction.nftId)) {
-              case (#err(error)) return #err(#Internal);
-              case (#ok(_)) {}
+              case (#Err(error)) return #err(#Internal);
+              case (#Ok(_)) {}
             };
 
-            switch (await FungibleToken.transfer(auction.owner, tokenAmount)) {
-              case (#err(error)) return #err(error);
-              case (#ok(_)) {
+            let ledgerRes = await Ledger.transfer({
+              memo = 0;
+              from_subaccount = null;
+              to = Account.defaultAccountIdentifier(auction.owner);
+              amount = { e8s = tokenAmount };
+              fee = { e8s = Const.LEDGER_FEE };
+              created_at_time = null;
+            });
+
+            switch (ledgerRes) {
+              case (#Err(error)) return #err(#TransferError);
+              case (#Ok(_)) {
                 auctionMap.put(auctionId, {
                   highestBid = ?highestBid;
                   bidIds;
@@ -275,22 +297,6 @@ actor AuctionController {
           };
         };
       };
-    };
-  };
-
-  // TODO: change this function in production
-  public func mockTopUp(account : Principal, amount : Nat) : async Result<(), T.Error> {
-    switch (await FungibleToken.transfer(account, amount)) {
-      case (#err(error)) return #err(error);
-      case (#ok(_)) return #ok();
-    };
-  };
-
-  // TODO: change this function in production
-  public shared({ caller }) func selfTopUp(amount : Nat) : async Result<(), T.Error> {
-    switch (await FungibleToken.transfer(caller, amount)) {
-      case (#err(error)) return #err(error);
-      case (#ok(_)) return #ok();
     };
   };
 
@@ -391,5 +397,14 @@ actor AuctionController {
       case (null) #err(#NotFound);
       case (?userState) #ok(userState);
     };
+  };
+
+  public query func getAccountId(principal : Principal) : async Blob {
+    Account.defaultAccountIdentifier(principal);
+  };
+
+  // Returns the default account identifier of this canister.
+  public query func canisterAccountId() : async Account.AccountIdentifier {
+    Account.defaultAccountIdentifier(Principal.fromActor(AuctionController));
   };
 };

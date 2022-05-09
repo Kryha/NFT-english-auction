@@ -90,7 +90,7 @@ module.exports = {
       FRONTEND_CANISTER_ID: process.env.FRONTEND_CANISTER_ID,
       BACKEND_CANISTER_ID: process.env.BACKEND_CANISTER_ID,
       NFT_CANISTER_ID: process.env.NFT_CANISTER_ID,
-      FUNGIBLE_TOKEN_CANISTER_ID: process.env.FUNGIBLETOKEN_CANISTER_ID,
+      LEDGER_CANISTER_ID: process.env.LEDGER_CANISTER_ID,
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],

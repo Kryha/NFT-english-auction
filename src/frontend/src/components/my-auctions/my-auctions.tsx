@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+
 import { BaseRoute, AuctionCard, ContentLoader, OverviewEmpty, Title, ButtonBase } from "../../view";
 import * as text from "../../assets/text";
 import { DashboardContainer, RouteHeader } from "./styles";
@@ -14,14 +15,9 @@ export const MyAuctions: FC = () => {
     <BaseRoute>
       <RouteHeader>
         <Title>{text.myAuctions}</Title>
-        <ButtonBase
-          onClick={(): void => {
-            history.push(path.newAuction);
-          }}
-        >
-          {text.createAuction}
-        </ButtonBase>
+        <ButtonBase onClick={(): void => history.push(path.newAuction)}>{text.createAuction}</ButtonBase>
       </RouteHeader>
+
       <ContentLoader loading={fetching}>
         {!ownAuctions.length ? (
           <OverviewEmpty title={text.noAuctionsAvailble} quote={text.noAuctionsAvailbleQuote} />

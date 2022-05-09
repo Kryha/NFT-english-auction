@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useState } from "react";
 import { useHistory, useLocation, Redirect } from "react-router-dom";
 
 import { AuctionObject } from "../../../../types";
@@ -19,30 +19,27 @@ import {
   TokenText,
 } from "./styles";
 
-type HistoryState = {
-  auction: AuctionObject | undefined;
+type LocationState = {
+  auction?: AuctionObject;
 };
 
 export const ActivateAuctionModal: FC = () => {
   const history = useHistory();
-  const location = useLocation<HistoryState>();
-  const auction = location.state.auction;
+  const location = useLocation<LocationState>();
+  const { auction } = location.state;
   const [nftId, setNftId] = useState("");
   const activate = useActivateAuction();
   const transfer = useTransferNft();
 
-  const closeModal = useCallback(
-    (specPath?: string) => {
-      if (!specPath) specPath = path.myAuctions;
-      history.push(specPath);
-    },
-    [history]
-  );
-
   if (!auction) return <Redirect to={path.myAuctions} />;
 
+  const closeModal = (specPath?: string) => {
+    if (!specPath) specPath = path.myAuctions;
+    history.push(specPath);
+  };
+
   const submit = async () => {
-    if (nftId === "") return;
+    if (!nftId) return;
     await transfer(nftId);
     await activate({ auctionId: auction.id, nftId: nftId });
     closeModal(path.myAuctions);
@@ -56,11 +53,14 @@ export const ActivateAuctionModal: FC = () => {
             <Heading>{text.activateNft}</Heading>
             <CancelCrossIcon onClick={() => closeModal()} />
           </HeadingContainer>
+
           <HeaderHorizontalBorder />
+
           <ConfirmationText>{text.activateYourNft(auction.name)}</ConfirmationText>
           <TokenText>{text.activateNftWarning(auction.name)}</TokenText>
           <LabeledData label={text.enterTokenId} />
           <TokenInput type="text" onChange={(e) => setNftId(e.target.value)} value={nftId} />
+
           <Box>
             <ButtonBase onClick={() => closeModal(path.dashboard)}>{text.cancel}</ButtonBase>
             <ButtonContainer customColor={color.darkBlue} onClick={submit}>

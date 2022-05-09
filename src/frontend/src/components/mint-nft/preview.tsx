@@ -1,9 +1,10 @@
 import React, { FC } from "react";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
 import { BackWithLink, BaseRoute, TokenOverviewBox } from "../../view";
 import { path } from "../../assets/util";
 import { resetTokenInputs, useCreateTokenState } from "../../store";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import * as text from "../../assets/text";
 import { color } from "../../design-system";
 import { useCreateNft } from "../../service/nft";
@@ -15,6 +16,7 @@ export const NewNftPreview: FC = () => {
   const { preview } = useCreateTokenState();
   const [createNft, loading] = useCreateNft();
   const history = useHistory();
+
   const publishNft = async (): Promise<void> => {
     await createNft();
     dispatch(resetTokenInputs());

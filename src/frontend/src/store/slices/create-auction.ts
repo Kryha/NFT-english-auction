@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { CompleteStore } from "../types";
 import { fullResetAction } from "../common";
-import { NewAuctionFormData, AuctionObject, NullNftId } from "../../../../types";
+import { NewAuctionFormData, AuctionObject } from "../../../../types";
 import { preview } from "../../utils";
 
 const defaultNewAuction: NewAuctionFormData = {
@@ -13,7 +13,7 @@ const defaultNewAuction: NewAuctionFormData = {
   minIncrement: 0,
   durationInDays: 0,
   buyNowPrice: 0,
-  nftId: NullNftId,
+  nftId: BigInt(0),
 };
 
 interface CreateAuctionState {

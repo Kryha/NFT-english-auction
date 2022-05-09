@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Field, Formik, FormikProps } from "formik";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+
 import { NewTokenFormData } from "../../../../types";
 import * as text from "../../assets/text";
 import { path } from "../../assets/util";
@@ -16,6 +17,7 @@ export const CreateNft: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const { formData } = useCreateTokenState();
+
   const onSubmit = (values: NewTokenFormData) => {
     dispatch(changeTokenInput(values));
     history.push(`${path.mintNft}${path.preview}`);

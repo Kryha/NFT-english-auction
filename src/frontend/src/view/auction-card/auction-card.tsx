@@ -21,6 +21,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({ data, link, file, highestBid
   const { name, status, owner, startPrice, dateCreated, deadline } = data;
   const history = useHistory();
   const { principalId } = useAuth();
+
   const perStatusDisplay = (): React.ReactElement => {
     if (status === AuctionStatus.Pending || status === AuctionStatus.Active) {
       return <CardDetailText>{`${text.dateStatus[status]} ${defaultDateFormat(dateCreated)}`}</CardDetailText>;
@@ -28,6 +29,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({ data, link, file, highestBid
       return <CardDetailText>{`${text.dateStatus[status]} ${defaultDateFormat(deadline)}`}</CardDetailText>;
     }
   };
+
   const isClosed = status === AuctionStatus.Closed;
   const isActive = status === AuctionStatus.Active;
 
@@ -35,8 +37,11 @@ export const AuctionCard: FC<AuctionCardProps> = ({ data, link, file, highestBid
   const reachedClosingConditions: boolean = isOwner && (Date.now() > deadline || data.buyNowPrice <= Number(highestBid));
 
   let buttonText = status === AuctionStatus.Pending ? text.activate : text.bidNow;
+
   if (reachedClosingConditions) buttonText = text.closeAuction;
+
   const showButton = (isOwner && reachedClosingConditions && isActive) || (!isClosed && !isOwner) || (isActive && !isOwner);
+
   const redirect = () => {
     if (reachedClosingConditions && !isClosed) {
       history.push({
@@ -63,16 +68,23 @@ export const AuctionCard: FC<AuctionCardProps> = ({ data, link, file, highestBid
           <Badge customColor={statusColor[status]}>{status}</Badge>
         </SectionBadge>
       </CardHeadingContainer>
+
       <IconContainer>
         <NftDisplayImage isCard file={file} />
       </IconContainer>
+
       <HeaderHorizontalBorder />
+
       <CardDetailText>{text.ownerLabel(owner)}</CardDetailText>
       <CardDetailText>{text.startingBid(startPrice)}</CardDetailText>
+
       {perStatusDisplay()}
+
       <HeaderHorizontalBorder />
-      {showButton && (<ButtonEnd>
-        <Label color={color.blue}>{buttonText}</Label>
+
+      {showButton && (
+        <ButtonEnd>
+          <Label color={color.blue}>{buttonText}</Label>
         </ButtonEnd>
       )}
     </Container>

@@ -25,7 +25,6 @@ import {
 import { ErrorBoundaryFallback, MainConatiner } from "../view";
 import { SideBar } from "./sidebar";
 import { path } from "../assets";
-import { CreditTopUpModal } from "../components/credit-topup-modal";
 import { CloseAuctionConfirmationModal } from "../components/close-auction-confirmation-modal";
 import { CloseAuctionModal } from "../components/close-auction-modal";
 
@@ -66,7 +65,6 @@ export const Routes: FC = () => {
         <ProtectedRoute exact path={`${path.myAuctions}${path.activate}`} component={ActivateAuctionModal} />
         <ProtectedRoute exact path={`${path.closeAuction}`} component={CloseAuctionModal} />
         <ProtectedRoute exact path={`${path.closeAuctionConfirmation}`} component={CloseAuctionConfirmationModal} />
-        <ProtectedRoute exact path={`${path.topUp}`} component={CreditTopUpModal} />
 
         <ProtectedRoute path={`${path.error}`} component={GenericError} />
       </MainConatiner>

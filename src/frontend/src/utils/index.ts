@@ -4,3 +4,4 @@ export * from "./api-mediators";
 export * from "./auth";
 export * from "./token";
 export * from "./preview";
+export * from "./data-encoding";

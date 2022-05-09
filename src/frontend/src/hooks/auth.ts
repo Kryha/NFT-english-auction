@@ -6,7 +6,7 @@ import { auth } from "../utils";
 import { initAuthClient, login, logout, useAuthState } from "../store";
 import { _SERVICE as BackendService } from "../../../declarations/backend/backend.did";
 import { _SERVICE as NFTService } from "../../../declarations/nft/nft.did";
-import { _SERVICE as FungibleTokenService } from "../../../declarations/fungibleToken/fungibleToken.did";
+import { _SERVICE as LedgerService } from "../../../declarations/ledger/ledger.did";
 
 interface UseAuthReturn {
   login: () => void;
@@ -16,7 +16,7 @@ interface UseAuthReturn {
   principalId?: string;
   backend: ActorSubclass<BackendService>;
   nft: ActorSubclass<NFTService>;
-  fungibleToken: ActorSubclass<FungibleTokenService>;
+  ledger: ActorSubclass<LedgerService>;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -47,6 +47,6 @@ export const useAuth = (): UseAuthReturn => {
     principalId: auth.client?.getIdentity().getPrincipal().toString(),
     backend: auth.backend,
     nft: auth.nft,
-    fungibleToken: auth.fungibleToken,
+    ledger: auth.ledger,
   };
 };

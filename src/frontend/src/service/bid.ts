@@ -2,8 +2,9 @@ import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 
+import { TransferArgs } from "../../../declarations/ledger/ledger.did";
 import { APIHook } from "../../../types";
-import { BACKEND_PRINCIPAL, path } from "../assets";
+import { LEDGER_FEE, path } from "../assets";
 import { useAuth } from "../hooks";
 import { setHighestBid, useCreateBidState } from "../store";
 import { dollarsToToken, mediate, tokenAmountToInt } from "../utils";
@@ -11,19 +12,9 @@ import { dollarsToToken, mediate, tokenAmountToInt } from "../utils";
 export const useCreateBid: APIHook = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const { backend, fungibleToken } = useAuth();
+  const { backend, ledger } = useAuth();
   const { formData } = useCreateBidState();
   const [loading, setLoading] = useState(false);
-
-  const handleError = useCallback(
-    (err: unknown) => {
-      setLoading(false);
-      console.warn("Bid Creation failed: ", err);
-      // TODO: redirect to an error page or something similar
-      history.push(path.dashboard);
-    },
-    [history]
-  );
 
   // TODO: revert bid creation if transfer fails
   const callback = useCallback(async () => {
@@ -34,19 +25,31 @@ export const useCreateBid: APIHook = () => {
       const tokenAmount = tokenAmountToInt(tokens);
 
       const bidRes = await backend.bid(bidPayload);
-      if ("err" in bidRes) return handleError(bidRes.err);
+      if ("err" in bidRes) throw bidRes.err;
 
-      const transferRes = await fungibleToken.transfer(BACKEND_PRINCIPAL, tokenAmount);
-      if ("err" in transferRes) return handleError(transferRes.err);
+      const toAccount = await backend.canisterAccountId();
+
+      const transferParam: TransferArgs = {
+        memo: BigInt(1),
+        from_subaccount: [],
+        to: toAccount,
+        amount: { e8s: tokenAmount },
+        fee: { e8s: LEDGER_FEE },
+        created_at_time: [],
+      };
+
+      const transferRes = await ledger.transfer(transferParam);
+      if ("Err" in transferRes) throw transferRes.Err;
 
       const bid = mediate.toFront.bidObject(bidRes.ok);
+
       dispatch(setHighestBid(bid));
-      setLoading(false);
       history.push(path.dashboard + path.confirmation);
     } catch (error) {
-      handleError(error);
+      console.warn("Bid Creation failed: ", error);
     }
-  }, [backend, dispatch, formData, fungibleToken, handleError, history]);
+    setLoading(false);
+  }, [backend, dispatch, formData, history, ledger]);
 
   return [callback, loading];
 };

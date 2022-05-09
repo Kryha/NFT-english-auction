@@ -11,7 +11,7 @@ export const preview = {
     dateCreated: Date.now(),
     owner: MOCK_OWNER,
     deadline: addDays(Date.now(), Number(formData.durationInDays)).getTime(),
-    nftId: "0",
+    nftId: BigInt(0),
   }),
   bid: (formData: NewBidFormData): BidObject => ({
     ...formData,

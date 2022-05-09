@@ -1,8 +1,6 @@
 import T "./types";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
 
 module {
   public func filterBidsByAuctionId(auctionId: T.AuctionId, bidMap: T.BidMap, auctionMap: T.AuctionMap): [T.BidObject] {

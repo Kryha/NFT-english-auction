@@ -1,36 +1,53 @@
 SHELL := /bin/bash
 
-PRINCIPAL := principal \"$(shell dfx identity get-principal)\"
-BACKEND_PRINCIPAL = principal \"$(shell dfx canister --no-wallet id backend)\"
+BACKEND_PRINCIPAL = principal \"$(shell dfx canister id backend)\"
 
-fungibleToken:
-	dfx build fungibleToken
-	dfx canister --no-wallet install fungibleToken --argument="(\"Logo\", \"Veiling Coin\", \"VLG\", 3, 1000000000000000, ${BACKEND_PRINCIPAL}, 0)" --mode=upgrade
+scripts-permissions:
+	chmod 774 scripts/
+
+download-ledger:
+	scripts/download-ledger.sh
+
+download-identity:
+	scripts/download-identity.sh
 
 nft:
 	dfx build nft
-	dfx canister --no-wallet install nft --argument="(${PRINCIPAL})" --mode=upgrade
+	dfx canister install nft --mode=upgrade
 
 backend:
 	dfx build backend
-	dfx canister --no-wallet install backend --mode=upgrade
+	dfx canister install backend --mode=upgrade
 
 test:
 	dfx build test
-	dfx canister --no-wallet install test --mode=upgrade
+	dfx canister install test --mode=upgrade
 
 frontend:
 	dfx build frontend
-	dfx canister --no-wallet install frontend --mode=upgrade
+	dfx canister install frontend --mode=upgrade
 
-# For some reason it can't get the backend id the first time, so just call it twice
+# - call `dfx identity new minter` before running this command
+# - set `"candid": "ledger.private.did"` in .dfx.json before running this command
+# - set `"candid": "ledger.public.did"` in .dfx.json after running this command
+ledger:
+	scripts/deploy-ledger.sh
+
+identity:
+	scripts/deploy-identity.sh
+
+create:
+	dfx canister create --no-wallet --all
+
 deploy:
-	dfx canister --no-wallet create --all
 	dfx build
-	dfx canister --no-wallet install backend --mode=reinstall
-	dfx canister --no-wallet install fungibleToken --mode=reinstall
-	dfx canister --no-wallet install nft --mode=reinstall
-	dfx canister --no-wallet install test --mode=reinstall
-	dfx canister --no-wallet install frontend --mode=reinstall
-	dfx canister --no-wallet call nft init "(${BACKEND_PRINCIPAL})"
-	dfx canister --no-wallet call fungibleToken init "(${BACKEND_PRINCIPAL})"
+	dfx canister install backend
+	dfx canister install nft
+	dfx canister install frontend
+	dfx canister call nft init "(${BACKEND_PRINCIPAL})"
+
+upgrade:
+	dfx build
+	dfx canister install backend --mode=upgrade
+	dfx canister install nft --mode=upgrade
+	dfx canister install frontend --mode=upgrade

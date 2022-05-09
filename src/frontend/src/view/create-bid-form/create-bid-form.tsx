@@ -40,12 +40,13 @@ export const CreateBidForm: FC<Props> = ({ auction, minimumIncrement }) => {
     >
       {({ handleSubmit, isValid, values }: FormikProps<FormValues>) => {
         const isSubmitButtonDisabled = !isValid || !values.amount;
+
         return (
           <form onSubmit={handleSubmit}>
             <ErrorMessage name="amount" component={WarningText} />
             <FormRow>
               <InputContainer>
-                <InputForm type="number" name="amount" placeholder={text.yourMaximumBid} isRow={true} />
+                <InputForm type="number" name="amount" placeholder={text.yourMaximumBid} />
               </InputContainer>
               <FormButton customColor={color.green} type="submit" disabled={isSubmitButtonDisabled}>
                 {text.bidNow}

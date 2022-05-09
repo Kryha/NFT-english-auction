@@ -21,8 +21,11 @@ import {
   NewAuctionFormData,
   NewBidFormData,
   Timestamp,
+  TokenObject,
 } from "../../../types";
 import { addDays } from "date-fns";
+import { TokenInfoExt } from "../../../declarations/nft/nft.did";
+import { decodePayload } from "./data-encoding";
 
 const backToFront = {
   auctionStatus: (backendStatus: AuctionStatusBackend): AuctionStatus => {
@@ -84,6 +87,25 @@ export const mediate = {
       bidder: backToFront.principal2String(backendBid.bidder),
       auctionId: backToFront.bigInt2Number(backendBid.auctionId),
     }),
+    token: (token: TokenInfoExt): TokenObject | undefined => {
+      const [tokenData] = token.metadata;
+
+      if (!tokenData) return;
+      if (!("InCanister" in tokenData.location)) return;
+
+      const { metadata, file } = decodePayload(tokenData.location.InCanister, tokenData.filetype);
+
+      return {
+        tokenId: Number(token.index),
+        owner: token.owner.toString(),
+        file: file,
+        title: metadata.title,
+        description: metadata.description,
+        category: metadata.category,
+        link: metadata.link,
+        nftId: metadata.nftId,
+      };
+    },
   },
   toBack: {
     newAuctionPayload: (formData: NewAuctionFormData): NewAuctionPayload => ({

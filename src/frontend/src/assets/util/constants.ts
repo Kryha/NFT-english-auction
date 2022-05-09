@@ -7,6 +7,7 @@ export const NANO_IN_MILLI = 1000000;
 export const FUNGIBLE_TOKEN_DECIMALS = 3;
 // TODO: set to a proper value
 export const DOLLARS_PER_TOKEN = 10;
+export const LEDGER_FEE = BigInt(10000);
 
 export const SUPPORTED_FORMATS = "image/jpeg, image/png, .pdf";
 export const MOCK_OWNER = "zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzzzz-zzz";

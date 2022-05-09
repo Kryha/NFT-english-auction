@@ -15,5 +15,6 @@ export const useCompactMode = (): boolean => {
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  return Boolean(windowSize < 1200);
+
+  return windowSize < 1200;
 };

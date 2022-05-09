@@ -1,16 +1,15 @@
-import React from "react";
+import React, { FC } from "react";
 import { AddPhotoIcon, NftImageContainer } from "./styles";
 import { File } from "../../../../types";
 import { bufferToDataURL } from "../../utils/data-encoding";
 import * as text from "../../assets/text";
 
-interface nftDisplayImageProps {
+interface NftDisplayImageProps {
   file?: File;
   isCard?: boolean;
 }
 
-export const NftDisplayImage = ({ file, isCard = false }: nftDisplayImageProps): React.ReactElement => {
-  if (!file) return <AddPhotoIcon isCard={isCard} />;
-  if (!file.name) return <NftImageContainer isCard={isCard} src={bufferToDataURL(file.data)} alt={text.nft} />;
-  return <AddPhotoIcon isCard={isCard} />;
+export const NftDisplayImage: FC<NftDisplayImageProps> = ({ file, isCard = false }) => {
+  if (!file || !file.name) return <AddPhotoIcon isCard={isCard} />;
+  return <NftImageContainer isCard={isCard} src={bufferToDataURL(file.data)} alt={text.nft} />;
 };

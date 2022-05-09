@@ -1,4 +1,5 @@
-import React from "react";
+import React, { FC } from "react";
+
 import { BaseRoute, BackWithLink, TokenOverviewBox } from "../../view";
 import { path } from "../../assets/util";
 import { useNFTWallet } from "../../store";
@@ -10,7 +11,7 @@ interface WalletDetailId {
   id: string;
 }
 
-export const WalletDetail = (): React.ReactElement => {
+export const WalletDetail: FC = () => {
   const nft = useNFTWallet();
   const matchParams = useRouteMatch<WalletDetailId>().params;
   const token = nft.tokens.find((token) => token.tokenId === Number(matchParams.id));

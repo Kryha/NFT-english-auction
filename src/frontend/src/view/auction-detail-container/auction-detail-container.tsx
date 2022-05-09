@@ -18,6 +18,7 @@ export const AuctionDetailContainer: FC<Props> = ({ auction, isBiddingAllowed, h
   const incrementAmount = highestBid ? auction.minIncrement + highestBid.amount : auction.startPrice;
   const auth = useAuth();
   const allowBids = isBiddingAllowed && auth.principalId !== auction.owner;
+
   return (
     <>
       <DetailsContainer>

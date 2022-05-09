@@ -1,4 +1,5 @@
-import React from "react";
+import React, { FC } from "react";
+
 import { Heading, HeaderHorizontalBorder, GeneralText, TableRow, Badge, SubHeading } from "../atoms";
 import * as text from "../../assets/text";
 import { NftContainer, Wrapper, TokenDetailContainer, TokenOverviewContainer } from "./styles";
@@ -11,7 +12,7 @@ interface TokenOverviewBoxProps {
   token: TokenObject;
 }
 
-export const TokenOverviewBox = ({ token }: TokenOverviewBoxProps): React.ReactElement => {
+export const TokenOverviewBox: FC<TokenOverviewBoxProps> = ({ token }) => {
   return (
     <TokenOverviewContainer>
       <NftContainer>

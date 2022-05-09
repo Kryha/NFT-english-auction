@@ -14,7 +14,7 @@ To learn more before you start working on Veiling, see the following documentati
 
 There are a few steps to perform in order to set up the project before running it. Let's take a look.
 
-### Motoko dependencies
+### Motoko dependencies (skip this part)
 
 In order to be able to install Motoko dependencies you have to download Vessel package manager first. The steps are the following (assuming you are using Linux or MacOS):
 
@@ -71,7 +71,7 @@ The steps to run it properly are as follow:
 
 1. Make sure you started the server from the Veiling root directory.
 2. Make sure you have properly installed [Rust](https://www.rust-lang.org/) on your computer.
-3. Clone or download the [internet-identity](npm) repo in a directory external to this project.
+3. Clone or download the [internet-identity](https://github.com/dfinity/internet-identity) repo in a directory external to this project.
 4. `cd` inside the internet-identity directory and run:
 
 ```bash
@@ -87,18 +87,36 @@ npm ci
 6. Build and deploy everything with the following command (the first build may take a while):
 
 ```bash
-II_ENV=development dfx deploy --no-wallet --argument '(null)'
+II_FETCH_ROOT_KEY=1 dfx deploy --no-wallet --argument '(null)'
 ```
+
+### Running IC ledger locally
+
+Follow these [steps](https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally). You can skip the first 4 steps.
+
+You can also just run `make ledger`, but first read the comments in `Makefile`.
 
 ### Deploying the application
 
-In the [nft-english-auction] directory, there is a single command that creates all the canisters, builds and deploys the code:
+Run the following command to create the canisters:
+
+```bash
+make create
+```
+
+Run the following command to build and deploy the actors on the canisters:
 
 ```bash
 make deploy
 ```
 
 If you want to redeploy after doing some changes to a particular canister you can just run:
+
+```bash
+make upgrade
+```
+
+Or you can run:
 
 ```bash
 make <canister_name>

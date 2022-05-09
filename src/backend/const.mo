@@ -5,4 +5,6 @@ module Const {
   // TODO: set to proper value
   public let DOLLARS_PER_TOKEN = 10;
   public let NULL_ID = "null";
+
+  public let LEDGER_FEE : Nat64 = 10_000;
 };

@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { APIHook, TokenObject, File as FileObj } from "../../../types";
+import { APIHook, TokenObject } from "../../../types";
 import { useAuth } from "../hooks";
-import { resetTokenInputs, setNFTWallet, useCreateTokenState, useWalletValues } from "../store";
-import { MintPayload, PayloadResult } from "../../../declarations/nft/nft.did";
-import { decodeMetadata, encodeMetadata, NFTMetadata } from "../utils/data-encoding";
+import { addToNFTWallet, resetTokenInputs, setNFTWallet, useCreateTokenState } from "../store";
+import { MintPayload } from "../../../declarations/nft/nft.did";
+import { encodeMetadata } from "../utils/data-encoding";
+import { mediate } from "../utils";
 
 export const useCreateNft: APIHook = () => {
   const dispatch = useDispatch();
@@ -34,7 +35,11 @@ export const useCreateNft: APIHook = () => {
         isPrivate: false,
         payload: payload,
       };
-      nft.mint(mintPayload);
+
+      const res = await nft.mintForMyself(mintPayload);
+
+      if ("Err" in res) throw res.Err;
+
       dispatch(resetTokenInputs());
     } catch (error) {
       console.warn("Create nft failed: ", error);
@@ -54,32 +59,15 @@ export const useGetMyNftBalance: APIHook = () => {
   const callback = useCallback(async () => {
     setLoading(true);
     try {
-      const nftIds = await nft.getMyBalance();
+      const tokens = await nft.getMyTokens();
 
-      if ("err" in nftIds) throw nftIds.err;
+      const tokenList: (TokenObject | undefined)[] = await Promise.all(tokens.map(async (token) => mediate.toFront.token(token)));
 
-      const tokenList: TokenObject[] = await Promise.all(
-        nftIds.ok.map(async (id) => {
-          const token = await nft.getToken(id);
-          if ("err" in token) throw token.err;
-          const { metadata, file } = decodePayload(token.ok.payload, token.ok.contentType);
-
-          return {
-            tokenId: parseInt(id),
-            owner: token.ok.owner.toString(),
-            file: file,
-            title: metadata.title,
-            description: metadata.description,
-            category: metadata.category,
-            link: metadata.link,
-            nftId: metadata.nftId,
-          };
-        })
-      );
+      const tokenObjects = tokenList.filter((token) => !!token) as TokenObject[];
 
       dispatch(
         setNFTWallet({
-          tokens: tokenList,
+          tokens: tokenObjects,
           fetched: true,
         })
       );
@@ -98,8 +86,9 @@ export const useTransferNft = (): ((tokenId: string) => Promise<void>) => {
   return useCallback(
     async (tokenId: string) => {
       try {
-        const res = await nft.transferToAuction(tokenId);
-        if ("err" in res) throw res.err;
+        const id = BigInt(tokenId);
+        const res = await nft.transferToAuction(id);
+        if ("Err" in res) throw res.Err;
       } catch (error) {
         console.warn("Transfer NFT failed: ", error);
       }
@@ -111,51 +100,21 @@ export const useTransferNft = (): ((tokenId: string) => Promise<void>) => {
 export const useGetNftById = (): ((tokenId: string) => Promise<void>) => {
   const { nft } = useAuth();
   const dispatch = useDispatch();
-  const [, wallet] = useWalletValues();
+
   return useCallback(
     async (tokenId: string) => {
       try {
-        const res = await nft.getToken(tokenId);
-        if ("err" in res) throw res.err;
-        const { metadata, file } = decodePayload(res.ok.payload, res.ok.contentType);
-        const token: TokenObject = {
-          tokenId: parseInt(tokenId),
-          owner: res.ok.owner.toString(),
-          file: file,
-          title: metadata.title,
-          description: metadata.description,
-          category: metadata.category,
-          link: metadata.link,
-          nftId: metadata.nftId,
-        };
-        dispatch(
-        setNFTWallet({
-          tokens: [...wallet.tokens, token],
-          fetched: true,
-        })
-      );
+        const id = BigInt(tokenId);
+        const res = await nft.getTokenInfo(id);
+        const token = mediate.toFront.token(res);
+
+        if (!token) return;
+
+        dispatch(addToNFTWallet([token]));
       } catch (error) {
         console.warn("Get NFT failed: ", error);
       }
     },
     [dispatch, nft]
   );
-};
-
-const decodePayload = (payload: PayloadResult, type: string): { metadata: NFTMetadata; file: FileObj } => {
-  // properly safeguard against missing file
-  let encodedPayload: number[] = [];
-  if ("Complete" in payload) {
-    encodedPayload = payload.Complete;
-  }
-  const { metadata, file } = decodeMetadata(encodedPayload);
-  const fileBuffer: ArrayBuffer = new Uint8Array(file).buffer;
-  return {
-    metadata,
-    file: {
-      data: fileBuffer,
-      type,
-      name: metadata.title,
-    },
-  };
 };

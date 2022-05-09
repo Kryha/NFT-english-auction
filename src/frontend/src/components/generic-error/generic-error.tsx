@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+
 import { ErrorPageText, MainWrapper, ErrorButton, IconContainer } from "./styles";
 import * as text from "../../assets/text";
 import { color } from "../../design-system";
@@ -28,14 +29,11 @@ export const GenericError: FC<ErrorProps> = ({ errorMessage, errorTitle, returnR
       <IconContainer>
         <SadComputerIcon />
       </IconContainer>
+
       <ErrorPageText>{errorTitle || text.somethingWentWrong}</ErrorPageText>
       <ErrorPageText>{errorMessage || text.genericErrorMessage}</ErrorPageText>
-      <ErrorButton
-        onClick={() => {
-          redirect();
-        }}
-        customColor={color.white}
-      >
+
+      <ErrorButton onClick={() => redirect()} customColor={color.white}>
         {text.goBack}
       </ErrorButton>
     </MainWrapper>

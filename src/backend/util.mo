@@ -16,6 +16,10 @@ module {
     Nat64.toNat(Nat64.fromIntWrap(Float.toInt(amount * (10 ** Float.fromInt(Const.TOKEN_DECIMALS)))));
   };
 
+  public func tokenAmountToNat64(amount : Float) : Nat64 {
+    Nat64.fromIntWrap(Float.toInt(amount * (10 ** Float.fromInt(Const.TOKEN_DECIMALS))));
+  };
+
   public func tokenAmountToFloat(amount : Nat) : Float {
     Float.fromInt(amount) / (10 ** Float.fromInt(Const.TOKEN_DECIMALS));
   };

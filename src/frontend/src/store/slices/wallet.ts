@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { CompleteStore } from "../types";
 import { fullResetAction } from "../common";
-import { WalletData } from "../../components/wallet/wallet-data";
 
 export type WalletState = {
   nft: NFTWallet;
@@ -15,7 +14,7 @@ export type NFTWallet = {
 };
 const initialState: WalletState = {
   nft: {
-    tokens: WalletData,
+    tokens: [],
     fetched: false,
   },
   totalTokenValue: 0,
@@ -33,6 +32,11 @@ export const walletSlice = createSlice({
       const { payload } = action;
       state.nft = payload;
       state.totalTokenValue = payload.tokens.length;
+    },
+    addToNFTWallet: (state, action: PayloadAction<TokenObject[]>) => {
+      state.nft.tokens.push(...action.payload);
+      state.totalTokenValue = state.nft.tokens.length;
+      state.nft.fetched = true;
     },
     resetWallet: reset,
   },
@@ -58,5 +62,5 @@ export const useWalletValues = (): [number, NFTWallet] => {
   return [wallet.totalTokenValue, wallet.nft];
 };
 
-export const { setNFTWallet, resetWallet } = walletSlice.actions;
+export const { setNFTWallet, resetWallet, addToNFTWallet } = walletSlice.actions;
 export default walletSlice.reducer;

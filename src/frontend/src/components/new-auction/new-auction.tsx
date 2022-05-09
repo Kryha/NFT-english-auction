@@ -18,6 +18,7 @@ export const NewAuction: FC = () => {
   const { formData } = useCreateAuctionState();
 
   const onSubmit = (values: NewAuctionFormData) => {
+    values.nftId = BigInt(values.nftId);
     dispatch(setCreateAuction(values));
     history.push(`${path.newAuction}${path.preview}`);
   };
@@ -29,6 +30,7 @@ export const NewAuction: FC = () => {
         <Formik initialValues={formData} validationSchema={validationSchema} onSubmit={onSubmit}>
           {({ handleSubmit, isSubmitting, isValid, values }: FormikProps<NewAuctionFormData>) => {
             const isSubmitButtonDisabled = isSubmitting || !isValid || !values;
+
             return (
               <form onSubmit={handleSubmit}>
                 <InputForm name="name" label={text.name} />

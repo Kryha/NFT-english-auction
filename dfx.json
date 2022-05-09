@@ -1,53 +1,35 @@
 {
   "canisters": {
+    "ledger": {
+      "type": "custom",
+      "wasm": "ledger.wasm",
+      "candid": "ledger.public.did"
+    },
     "nft": {
       "main": "src/nft/main.mo",
       "type": "motoko"
     },
-    "fungibleToken": {
-      "main": "src/fungibleToken/token.mo",
-      "type": "motoko"
-    },
     "backend": {
-      "dependencies": [
-        "fungibleToken"
-      ],
+      "dependencies": ["nft", "ledger"],
       "main": "src/backend/main.mo",
       "type": "motoko"
     },
-    "test": {
-      "dependencies": [
-        "nft",
-        "backend",
-        "fungibleToken"
-      ],
-      "main": "src/test/main.mo",
-      "type": "motoko"
-    },
     "frontend": {
-      "dependencies": [
-        "nft",
-        "backend",
-        "fungibleToken",
-        "nft"
-      ],
+      "dependencies": ["nft", "backend", "ledger"],
       "frontend": {
         "entrypoint": "src/frontend/src/index.html"
       },
-      "source": [
-        "src/frontend/assets",
-        "dist/frontend/"
-      ],
+      "source": ["src/frontend/assets", "dist/frontend/"],
       "type": "assets"
     }
   },
   "defaults": {
     "build": {
       "args": "",
-      "packtool": "vessel sources"
+      "packtool": ""
     }
   },
-  "dfx": "0.8.3",
+  "dfx": "0.9.3",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
